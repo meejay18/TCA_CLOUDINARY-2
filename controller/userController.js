@@ -158,3 +158,65 @@ exports.updateUser = async (req, res) => {
     })
   }
 }
+
+exports.getOneUser = async (req, res) => {
+  const { userId } = req.params
+  try {
+    const user = await userModel.findById(userId)
+    return res.status(200).json({
+      message: 'user retrieved',
+      data: user,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error getting user',
+      error: error.message,
+    })
+  }
+}
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await userModel.find()
+    return res.status(200).json({
+      message: 'users retrieved',
+      data: users,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error getting user',
+      error: error.message,
+    })
+  }
+}
+
+exports.deleteUser = async (req, res) => {
+  const { userId } = req.params
+
+  try {
+    const user = await userModel.findById(userId)
+    if (!user) {
+      return res.status(404).json({
+        message: 'user not found',
+      })
+    }
+
+    if (user.displayPicture.publicId) {
+      await cloudinary.uploader.destroy(user.displayPicture.publicId)
+    }
+
+    if (user.gallery && user.gallery.length > 0) {
+      await cloudinary.api.delete_resources(user.gallery.map((el) => el.publicId))
+    }
+
+    await userModel.findByIdAndDelete(userId)
+    return res.status(200).json({
+      message: 'user deleted',
+      data: user,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error deleting user',
+      error: error.message,
+    })
+  }
+}
