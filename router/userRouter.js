@@ -1,5 +1,5 @@
 const express = require('express')
-const { signUp, updateUser } = require('../controller/userController')
+const { signUp, updateUser, getAllUsers, deleteUser } = require('../controller/userController')
 const upload = require('../middleware/multer')
 
 const router = express.Router()
@@ -11,5 +11,8 @@ const signUpfield = upload.fields([
 
 router.post('/user', signUpfield, signUp)
 router.put('/user/:userId', signUpfield, updateUser)
+router.get('/user', getAllUsers)
+router.get('/user/:userId', getOneUser)
+router.delete('/user/:userId', deleteUser)
 
 module.exports = router
